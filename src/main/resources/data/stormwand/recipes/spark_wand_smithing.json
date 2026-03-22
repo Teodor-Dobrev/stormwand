@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "minecraft:lightning_rod"
+  },
+  "base": {
+    "item": "stormwand:storm_wand"
+  },
+  "addition": {
+    "item": "minecraft:amethyst_shard"
+  },
+  "result": {
+    "item": "stormwand:spark_wand"
+  }
+}

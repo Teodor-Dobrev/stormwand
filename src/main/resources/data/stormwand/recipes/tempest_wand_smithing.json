@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "minecraft:lightning_rod"
+  },
+  "base": {
+    "item": "stormwand:arc_wand"
+  },
+  "addition": {
+    "item": "minecraft:echo_shard"
+  },
+  "result": {
+    "item": "stormwand:tempest_wand"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "item.stormwand.storm_wand": "Storm Wand",
+  "item.stormwand.spark_wand": "Spark Wand",
+  "item.stormwand.arc_wand": "Arc Wand",
+  "item.stormwand.tempest_wand": "Tempest Wand",
+  "item.stormwand.maelstrom_wand": "Maelstrom Wand",
+  "item.stormwand.eternal_storm_wand": "Eternal Storm Wand",
+  "message.stormwand.not_enough_mana": "Not enough mana",
+  "message.stormwand.mode_chain": "Mode: Split Lightning",
+  "message.stormwand.mode_focused": "Mode: Focused Bolt"
+}

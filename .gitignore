@@ -1,0 +1,18 @@
+# Gradle
+.gradle/
+.gradle-user-home/
+build/
+
+# Forge run folders
+run/
+run-data/
+
+# IDE
+.idea/
+.vscode/
+out/
+bin/
+
+# OS
+.DS_Store
+Thumbs.db

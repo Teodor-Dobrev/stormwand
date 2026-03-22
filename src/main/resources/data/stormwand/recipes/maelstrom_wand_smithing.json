@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "minecraft:lightning_rod"
+  },
+  "base": {
+    "item": "stormwand:tempest_wand"
+  },
+  "addition": {
+    "item": "minecraft:nether_star"
+  },
+  "result": {
+    "item": "stormwand:maelstrom_wand"
+  }
+}
