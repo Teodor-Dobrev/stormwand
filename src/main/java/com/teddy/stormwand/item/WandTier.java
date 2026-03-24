@@ -4,21 +4,25 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 
 public enum WandTier {
-    STORM("storm_wand", 0, false, Rarity.UNCOMMON),
-    SPARK("spark_wand", 1, false, Rarity.UNCOMMON),
-    ARC("arc_wand", 2, false, Rarity.RARE),
-    TEMPEST("tempest_wand", 3, false, Rarity.RARE),
-    MAELSTROM("maelstrom_wand", 4, false, Rarity.EPIC),
-    ETERNAL("eternal_storm_wand", 4, true, Rarity.EPIC);
+    STORM("storm_wand", 512, 0.00D, 0.00D, false, Rarity.UNCOMMON),
+    SPARK("spark_wand", 768, 0.20D, 0.10D, false, Rarity.UNCOMMON),
+    ARC("arc_wand", 1024, 0.40D, 0.20D, false, Rarity.RARE),
+    TEMPEST("tempest_wand", 1536, 0.60D, 0.30D, false, Rarity.RARE),
+    MAELSTROM("maelstrom_wand", 2048, 0.80D, 0.40D, false, Rarity.EPIC),
+    ETERNAL("eternal_storm_wand", 0, 0.80D, 0.40D, true, Rarity.EPIC);
 
     private final String registryName;
-    private final int configIndex;
+    private final int durability;
+    private final double manaDiscount;
+    private final double cooldownReduction;
     private final boolean eternal;
     private final Rarity rarity;
 
-    WandTier(String registryName, int configIndex, boolean eternal, Rarity rarity) {
+    WandTier(String registryName, int durability, double manaDiscount, double cooldownReduction, boolean eternal, Rarity rarity) {
         this.registryName = registryName;
-        this.configIndex = configIndex;
+        this.durability = durability;
+        this.manaDiscount = manaDiscount;
+        this.cooldownReduction = cooldownReduction;
         this.eternal = eternal;
         this.rarity = rarity;
     }
@@ -27,8 +31,16 @@ public enum WandTier {
         return this.registryName;
     }
 
-    public int getConfigIndex() {
-        return this.configIndex;
+    public int getDurability() {
+        return this.durability;
+    }
+
+    public double getManaDiscount() {
+        return this.manaDiscount;
+    }
+
+    public double getCooldownReduction() {
+        return this.cooldownReduction;
     }
 
     public boolean isEternal() {

@@ -21,6 +21,24 @@ public final class ModEntities {
                     .build("storm_bolt")
     );
 
+    public static final RegistryObject<EntityType<StormGrenadeProjectile>> STORM_GRENADE = ENTITY_TYPES.register(
+            "storm_grenade",
+            () -> EntityType.Builder.<StormGrenadeProjectile>of(StormGrenadeProjectile::new, MobCategory.MISC)
+                    .sized(0.35F, 0.35F)
+                    .clientTrackingRange(10)
+                    .updateInterval(5)
+                    .build("storm_grenade")
+    );
+
+    public static final RegistryObject<EntityType<BallLightningProjectile>> BALL_LIGHTNING = ENTITY_TYPES.register(
+            "ball_lightning",
+            () -> EntityType.Builder.<BallLightningProjectile>of(BallLightningProjectile::new, MobCategory.MISC)
+                    .sized(0.6F, 0.6F)
+                    .clientTrackingRange(10)
+                    .updateInterval(4)
+                    .build("ball_lightning")
+    );
+
     private ModEntities() {
     }
 

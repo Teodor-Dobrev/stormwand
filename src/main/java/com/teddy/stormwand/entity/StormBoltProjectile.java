@@ -1,14 +1,11 @@
 package com.teddy.stormwand.entity;
 
-import com.teddy.stormwand.config.StormWandConfig;
 import com.teddy.stormwand.item.ModItems;
-import com.teddy.stormwand.item.WandFireMode;
-import com.teddy.stormwand.spell.ModSpells;
-import com.teddy.stormwand.spell.SpellCastContext;
-import com.teddy.stormwand.spell.SpellCastResult;
+import com.teddy.stormwand.spell.WandSpell;
+import com.teddy.stormwand.spell.WandSpellData;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,10 +29,12 @@ public class StormBoltProjectile extends ThrowableItemProjectile {
         super(entityType, level);
     }
 
-    public StormBoltProjectile(Level level, LivingEntity shooter, ItemStack wandStack) {
+    public StormBoltProjectile(Level level, LivingEntity shooter, ItemStack wandStack, ResourceLocation spellId, int spellLevel) {
         super(ModEntities.STORM_BOLT.get(), shooter, level);
         ItemStack projectileStack = wandStack.copy();
         projectileStack.setCount(1);
+        WandSpellData.setSelectedSpell(projectileStack, spellId);
+        WandSpellData.setSpellLevel(projectileStack, spellId, spellLevel);
         this.setItem(projectileStack);
     }
 
@@ -70,8 +69,11 @@ public class StormBoltProjectile extends ThrowableItemProjectile {
             return;
         }
 
-        if (this.getOwner() != null && this.distanceToSqr(this.getOwner()) >= StormWandConfig.getCastRange() * StormWandConfig.getCastRange()) {
-            if (WandFireMode.fromStack(this.getItem()).isSplitMode()) {
+        WandSpell spell = WandSpellData.getSelectedSpell(this.getItem());
+        int spellLevel = WandSpellData.getSpellLevel(this.getItem(), spell.id());
+        double maxRange = spell.getCastRange(spellLevel);
+        if (this.getOwner() != null && this.distanceToSqr(this.getOwner()) >= maxRange * maxRange) {
+            if (spell.resolvesAtMaxRange()) {
                 resolveSpell(null, this.position());
             } else {
                 this.discard();
@@ -100,14 +102,9 @@ public class StormBoltProjectile extends ThrowableItemProjectile {
             return;
         }
 
-        SpellCastResult castResult = ModSpells.getDefaultSpell().cast(
-                new SpellCastContext(player, this, this.getItem(), impactPosition, directHitTarget)
-        );
-
-        if (castResult == SpellCastResult.NOT_ENOUGH_MANA) {
-            player.displayClientMessage(Component.translatable("message.stormwand.not_enough_mana"), true);
-        }
-
+        WandSpell spell = WandSpellData.getSelectedSpell(this.getItem());
+        int spellLevel = WandSpellData.getSpellLevel(this.getItem(), spell.id());
+        spell.cast(new com.teddy.stormwand.spell.SpellCastContext(player, this, this.getItem(), impactPosition, directHitTarget), spellLevel);
         this.discard();
     }
 }

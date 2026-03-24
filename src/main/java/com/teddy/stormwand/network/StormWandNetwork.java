@@ -12,7 +12,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import java.util.Optional;
 
 public final class StormWandNetwork {
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "2";
     private static int nextPacketId;
     private static boolean registered;
 
@@ -38,6 +38,15 @@ public final class StormWandNetwork {
                 SyncManaS2CPacket::decode,
                 SyncManaS2CPacket::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT)
+        );
+
+        CHANNEL.registerMessage(
+                nextPacketId++,
+                SelectSpellC2SPacket.class,
+                SelectSpellC2SPacket::encode,
+                SelectSpellC2SPacket::decode,
+                SelectSpellC2SPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER)
         );
 
         registered = true;
