@@ -1,6 +1,7 @@
 package com.teddy.stormwand;
 
 import com.teddy.stormwand.config.StormWandConfig;
+import com.teddy.stormwand.enchantment.ModEnchantments;
 import com.teddy.stormwand.entity.ModEntities;
 import com.teddy.stormwand.item.ModItems;
 import com.teddy.stormwand.network.StormWandNetwork;
@@ -19,6 +20,7 @@ public class StormWandMod {
         IEventBus modEventBus = context.getModEventBus();
 
         ModItems.register(modEventBus);
+        ModEnchantments.register(modEventBus);
         ModEntities.register(modEventBus);
         modEventBus.addListener(this::addCreativeTabItems);
 
@@ -29,6 +31,11 @@ public class StormWandMod {
     private void addCreativeTabItems(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.COMBAT) {
             ModItems.getCreativeWands().forEach(wand -> event.accept(wand.get()));
+            return;
+        }
+
+        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+            ModItems.getCreativeSpellBooks().forEach(event::accept);
         }
     }
 }
