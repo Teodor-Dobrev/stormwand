@@ -17,6 +17,12 @@ public final class ModSpells {
             new StormGrenadeSpell(ResourceLocation.fromNamespaceAndPath(StormWandMod.MOD_ID, "storm_grenade"));
     public static final WandSpell BALL_LIGHTNING =
             new BallLightningSpell(ResourceLocation.fromNamespaceAndPath(StormWandMod.MOD_ID, "ball_lightning"));
+    public static final WandSpell STUPIFY =
+            new StupifySpell(ResourceLocation.fromNamespaceAndPath(StormWandMod.MOD_ID, "stupify"));
+    public static final WandSpell ION_DASH =
+            new IonDashSpell(ResourceLocation.fromNamespaceAndPath(StormWandMod.MOD_ID, "ion_dash"));
+    public static final WandSpell ARC_MINE =
+            new ArcMineSpell(ResourceLocation.fromNamespaceAndPath(StormWandMod.MOD_ID, "arc_mine"));
     public static final WandSpell TO_THE_BEYOND =
             new ToTheBeyondSpell(ResourceLocation.fromNamespaceAndPath(StormWandMod.MOD_ID, "to_the_beyond"));
     public static final WandSpell STORM_SHIELD =
@@ -29,8 +35,11 @@ public final class ModSpells {
     private static final List<WandSpell> ORDERED_SPELLS = List.of(
             STORM_LANCE,
             CHAIN_STORM,
-            STORM_GRENADE,
+            // STORM_GRENADE temporarily disabled from progression/selection.
             BALL_LIGHTNING,
+            STUPIFY,
+            ION_DASH,
+            ARC_MINE,
             TO_THE_BEYOND,
             STORM_SHIELD,
             FISHEY_FISHING,

@@ -1,6 +1,7 @@
 # Gradle
 .gradle/
 .gradle-user-home/
+.gradle-temp/
 build/
 
 # Forge run folders

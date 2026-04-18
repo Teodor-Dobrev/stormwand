@@ -76,11 +76,7 @@ public final class WandLootEvents {
             BuiltInLootTables.ANCIENT_CITY_ICE_BOX
     );
 
-    private static final List<WandSpell> FISHABLE_SPELLS = List.of(
-            ModSpells.BALL_LIGHTNING,
-            ModSpells.TO_THE_BEYOND,
-            ModSpells.FISHEY_FISHING
-    );
+    private static final List<WandSpell> FISHABLE_SPELLS = ModSpells.all();
 
     private WandLootEvents() {
     }
@@ -173,40 +169,40 @@ public final class WandLootEvents {
     private static LootPool commonSpellBookPool() {
         LootPool.Builder pool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1.0F))
-                .when(LootItemRandomChanceCondition.randomChance(0.05F));
-        addSpellBooks(pool, ModSpells.all(), 1, 12, 2, 7, 3, 3);
+                .when(LootItemRandomChanceCondition.randomChance(0.08F));
+        addSpellBooks(pool, ModSpells.all(), 1, 12, 2, 8, 3, 5);
         return pool.build();
     }
 
     private static LootPool midSpellBookPool() {
         LootPool.Builder pool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1.0F))
-                .when(LootItemRandomChanceCondition.randomChance(0.08F));
-        addSpellBooks(pool, ModSpells.all(), 2, 8, 3, 8, 4, 5, 5, 2);
+                .when(LootItemRandomChanceCondition.randomChance(0.12F));
+        addSpellBooks(pool, ModSpells.all(), 2, 8, 3, 8, 4, 6, 5, 4);
         return pool.build();
     }
 
     private static LootPool rareSpellBookPool() {
         LootPool.Builder pool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1.0F))
-                .when(LootItemRandomChanceCondition.randomChance(0.11F));
-        addSpellBooks(pool, ModSpells.all(), 4, 8, 5, 8, 6, 5, 7, 2);
+                .when(LootItemRandomChanceCondition.randomChance(0.16F));
+        addSpellBooks(pool, ModSpells.all(), 3, 6, 4, 8, 5, 8);
         return pool.build();
     }
 
     private static LootPool endSpellBookPool() {
         LootPool.Builder pool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1.0F))
-                .when(LootItemRandomChanceCondition.randomChance(0.16F));
-        addSpellBooks(pool, ModSpells.all(), 6, 8, 7, 6, 8, 3);
+                .when(LootItemRandomChanceCondition.randomChance(0.22F));
+        addSpellBooks(pool, ModSpells.all(), 4, 8, 5, 12);
         return pool.build();
     }
 
     private static LootPool fishingSpellBookPool() {
         LootPool.Builder pool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1.0F))
-                .when(LootItemRandomChanceCondition.randomChance(0.12F));
-        addSpellBooks(pool, FISHABLE_SPELLS, 1, 8, 2, 4, 3, 1);
+                .when(LootItemRandomChanceCondition.randomChance(0.16F));
+        addSpellBooks(pool, FISHABLE_SPELLS, 1, 8, 2, 6, 3, 4, 4, 2, 5, 1);
         return pool.build();
     }
 

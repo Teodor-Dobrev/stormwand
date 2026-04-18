@@ -4,12 +4,12 @@
     "item": "minecraft:netherite_upgrade_smithing_template"
   },
   "base": {
-    "item": "stormwand:tempest_wand"
+    "item": "stormwand:maelstrom_wand"
   },
   "addition": {
-    "item": "minecraft:nether_star"
+    "item": "minecraft:dragon_breath"
   },
   "result": {
-    "item": "stormwand:maelstrom_wand"
+    "item": "stormwand:eternal_storm_wand"
   }
 }

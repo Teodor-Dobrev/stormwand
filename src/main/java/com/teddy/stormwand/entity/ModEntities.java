@@ -39,6 +39,15 @@ public final class ModEntities {
                     .build("ball_lightning")
     );
 
+    public static final RegistryObject<EntityType<ArcMineProjectile>> ARC_MINE = ENTITY_TYPES.register(
+            "arc_mine",
+            () -> EntityType.Builder.<ArcMineProjectile>of(ArcMineProjectile::new, MobCategory.MISC)
+                    .sized(0.4F, 0.4F)
+                    .clientTrackingRange(10)
+                    .updateInterval(4)
+                    .build("arc_mine")
+    );
+
     private ModEntities() {
     }
 

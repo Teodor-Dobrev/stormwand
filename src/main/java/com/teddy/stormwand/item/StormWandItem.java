@@ -16,6 +16,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.DigDurabilityEnchantment;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -65,6 +66,11 @@ public class StormWandItem extends Item {
     }
 
     @Override
+    public boolean isValidRepairItem(ItemStack toRepair, ItemStack repairCandidate) {
+        return repairCandidate.is(Items.AMETHYST_SHARD) || super.isValidRepairItem(toRepair, repairCandidate);
+    }
+
+    @Override
     public InteractionResultHolder<ItemStack> use(Level level, net.minecraft.world.entity.player.Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         WandSpellData.ensureDefaults(stack);
@@ -78,7 +84,9 @@ public class StormWandItem extends Item {
         int spellLevel = WandSpellData.getSpellLevel(stack, selectedSpell.id());
         boolean creativeMode = player.getAbilities().instabuild;
 
-        if (!creativeMode && WandSpellData.getRemainingCooldownTicks(stack, selectedSpell.id(), level.getGameTime()) > 0) {
+        int remainingCooldown = WandSpellData.getRemainingCooldownTicks(stack, selectedSpell.id(), level.getGameTime());
+        if (!creativeMode && remainingCooldown > 0) {
+            player.displayClientMessage(Component.translatable("message.stormwand.spell_on_cooldown", formatSeconds(remainingCooldown)), true);
             return InteractionResultHolder.fail(stack);
         }
 
@@ -90,6 +98,7 @@ public class StormWandItem extends Item {
         if (!creativeMode) {
             PlayerMana mana = PlayerManaProvider.get(serverPlayer).orElse(null);
             if (mana == null) {
+                player.displayClientMessage(Component.translatable("message.stormwand.mana_unavailable"), true);
                 return InteractionResultHolder.fail(stack);
             }
 
@@ -158,9 +167,11 @@ public class StormWandItem extends Item {
         if (stack.isDamageableItem()) {
             int durabilityLeft = stack.getMaxDamage() - stack.getDamageValue();
             tooltip.add(Component.translatable("tooltip.stormwand.durability", durabilityLeft, stack.getMaxDamage() - 1).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("tooltip.stormwand.repair_hint").withStyle(ChatFormatting.DARK_GRAY));
         }
         tooltip.add(Component.translatable("tooltip.stormwand.mana_discount", (int) Math.round(this.tier.getManaDiscount() * 100.0D)).withStyle(ChatFormatting.DARK_AQUA));
         tooltip.add(Component.translatable("tooltip.stormwand.cooldown_reduction", (int) Math.round(this.tier.getCooldownReduction() * 100.0D)).withStyle(ChatFormatting.DARK_AQUA));
+        tooltip.add(Component.translatable("tooltip.stormwand.merge_hint").withStyle(ChatFormatting.DARK_GRAY));
         tooltip.add(Component.translatable("tooltip.stormwand.selector_hint").withStyle(ChatFormatting.DARK_GRAY));
         for (WandSpellData.SpellLevelEntry entry : WandSpellData.getInstalledSpells(stack)) {
             tooltip.add(Component.translatable("tooltip.stormwand.installed_spell", entry.spell().displayName(), RomanNumerals.toRoman(entry.level())).withStyle(ChatFormatting.DARK_GRAY));

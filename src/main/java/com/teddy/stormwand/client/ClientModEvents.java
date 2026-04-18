@@ -26,5 +26,6 @@ public final class ClientModEvents {
         event.registerEntityRenderer(ModEntities.STORM_BOLT.get(), StormBoltRenderer::new);
         event.registerEntityRenderer(ModEntities.STORM_GRENADE.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(ModEntities.BALL_LIGHTNING.get(), ThrownItemRenderer::new);
+        event.registerEntityRenderer(ModEntities.ARC_MINE.get(), ThrownItemRenderer::new);
     }
 }

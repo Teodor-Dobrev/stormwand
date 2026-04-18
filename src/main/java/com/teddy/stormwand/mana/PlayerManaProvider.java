@@ -17,7 +17,7 @@ public class PlayerManaProvider implements ICapabilitySerializable<CompoundTag> 
             });
 
     private final PlayerMana mana = new PlayerMana();
-    private final LazyOptional<PlayerMana> optionalMana = LazyOptional.of(() -> this.mana);
+    private LazyOptional<PlayerMana> optionalMana = LazyOptional.of(() -> this.mana);
 
     public static LazyOptional<PlayerMana> get(Player player) {
         return player.getCapability(PLAYER_MANA);
@@ -25,6 +25,9 @@ public class PlayerManaProvider implements ICapabilitySerializable<CompoundTag> 
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction side) {
+        if (!this.optionalMana.isPresent()) {
+            this.optionalMana = LazyOptional.of(() -> this.mana);
+        }
         return PLAYER_MANA.orEmpty(capability, this.optionalMana);
     }
 

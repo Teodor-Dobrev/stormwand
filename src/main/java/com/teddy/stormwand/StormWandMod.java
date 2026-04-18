@@ -29,12 +29,18 @@ public class StormWandMod {
     }
 
     private void addCreativeTabItems(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.COMBAT) {
+        if (CreativeModeTabs.COMBAT.equals(event.getTabKey())) {
             ModItems.getCreativeWands().forEach(wand -> event.accept(wand.get()));
             return;
         }
 
-        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+        if (CreativeModeTabs.TOOLS_AND_UTILITIES.equals(event.getTabKey())) {
+            ModItems.getCreativeSpellBooks().forEach(event::accept);
+            return;
+        }
+
+        if (CreativeModeTabs.SEARCH.equals(event.getTabKey())) {
+            ModItems.getCreativeWands().forEach(wand -> event.accept(wand.get()));
             ModItems.getCreativeSpellBooks().forEach(event::accept);
         }
     }

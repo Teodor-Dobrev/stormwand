@@ -34,7 +34,7 @@ public class BallLightningSpell implements WandSpell {
     private static final double[] RANGE = {24.0D, 28.0D, 32.0D, 36.0D, 42.0D, 48.0D, 56.0D, 64.0D, 72.0D, 80.0D};
     private static final float[] PULSE_DAMAGE = {1.8F, 2.5F, 3.3F, 4.2F, 5.2F, 6.2F, 7.2F, 8.2F, 9.2F, 10.2F};
     private static final double[] PULSE_RADIUS = {2.5D, 3.0D, 3.4D, 3.9D, 4.4D, 5.0D, 5.6D, 6.2D, 6.8D, 7.5D};
-    private static final int[] DURATION = {50, 70, 90, 110, 130, 150, 170, 190, 210, 230};
+    private static final int[] DURATION = {70, 95, 125, 160, 200, 245, 295, 350, 410, 475};
     private static final int[] MAX_TARGETS = {1, 1, 2, 2, 3, 3, 4, 5, 6, 8};
 
     private final ResourceLocation id;
@@ -89,6 +89,11 @@ public class BallLightningSpell implements WandSpell {
                 Component.translatable("tooltip.stormwand.ball_lightning.radius", format(getPulseRadius(spellLevel))),
                 Component.translatable("tooltip.stormwand.ball_lightning.duration", format(getDurationTicks(spellLevel) / 20.0D))
         );
+    }
+
+    @Override
+    public int getMaxLevel() {
+        return 5;
     }
 
     public SpellCastResult pulse(ServerPlayer player, net.minecraft.world.entity.Entity sourceEntity, ItemStack wandStack, Vec3 center, int spellLevel) {
@@ -192,15 +197,31 @@ public class BallLightningSpell implements WandSpell {
     }
 
     private int valueForLevel(int[] values, int spellLevel) {
-        return values[Math.max(0, Math.min(values.length - 1, spellLevel - 1))];
+        return values[getMappedLevelIndex(values.length, spellLevel)];
     }
 
     private float valueForLevel(float[] values, int spellLevel) {
-        return values[Math.max(0, Math.min(values.length - 1, spellLevel - 1))];
+        return values[getMappedLevelIndex(values.length, spellLevel)];
     }
 
     private double valueForLevel(double[] values, int spellLevel) {
-        return values[Math.max(0, Math.min(values.length - 1, spellLevel - 1))];
+        return values[getMappedLevelIndex(values.length, spellLevel)];
+    }
+
+    private int getMappedLevelIndex(int valueCount, int spellLevel) {
+        if (valueCount <= 5) {
+            return Math.max(0, Math.min(valueCount - 1, spellLevel - 1));
+        }
+
+        int clamped = Math.max(1, Math.min(getMaxLevel(), spellLevel));
+        int mappedLevel = switch (clamped) {
+            case 1 -> 1;
+            case 2 -> 3;
+            case 3 -> 5;
+            case 4 -> 7;
+            default -> 10;
+        };
+        return Math.max(0, Math.min(valueCount - 1, mappedLevel - 1));
     }
 
     private String format(double value) {

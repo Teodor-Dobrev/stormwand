@@ -51,6 +51,10 @@ public final class WandSpellData {
     }
 
     public static int getSpellLevel(ItemStack stack, ResourceLocation spellId) {
+        if (ModSpells.byId(spellId).isEmpty()) {
+            return 0;
+        }
+
         CompoundTag tag = stack.getTag();
         if (tag == null || !tag.contains(SPELLS_TAG, CompoundTag.TAG_COMPOUND)) {
             return 0;
@@ -128,7 +132,10 @@ public final class WandSpellData {
     }
 
     private static int clampLevel(ResourceLocation spellId, int level) {
-        int max = ModSpells.byId(spellId).map(WandSpell::getMaxLevel).orElse(1);
+        int max = ModSpells.byId(spellId).map(WandSpell::getMaxLevel).orElse(0);
+        if (max <= 0) {
+            return 0;
+        }
         return Math.max(1, Math.min(max, level));
     }
 
