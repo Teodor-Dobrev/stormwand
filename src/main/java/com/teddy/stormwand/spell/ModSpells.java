@@ -13,8 +13,6 @@ public final class ModSpells {
             new StormLanceSpell(ResourceLocation.fromNamespaceAndPath(StormWandMod.MOD_ID, "storm_lance"));
     public static final WandSpell CHAIN_STORM =
             new ChainStormSpell(ResourceLocation.fromNamespaceAndPath(StormWandMod.MOD_ID, "chain_storm"));
-    public static final WandSpell STORM_GRENADE =
-            new StormGrenadeSpell(ResourceLocation.fromNamespaceAndPath(StormWandMod.MOD_ID, "storm_grenade"));
     public static final WandSpell BALL_LIGHTNING =
             new BallLightningSpell(ResourceLocation.fromNamespaceAndPath(StormWandMod.MOD_ID, "ball_lightning"));
     public static final WandSpell STUPIFY =
@@ -35,7 +33,6 @@ public final class ModSpells {
     private static final List<WandSpell> ORDERED_SPELLS = List.of(
             STORM_LANCE,
             CHAIN_STORM,
-            // STORM_GRENADE temporarily disabled from progression/selection.
             BALL_LIGHTNING,
             STUPIFY,
             ION_DASH,

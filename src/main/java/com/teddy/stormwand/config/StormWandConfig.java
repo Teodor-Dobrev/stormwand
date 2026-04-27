@@ -7,7 +7,6 @@ public final class StormWandConfig {
 
     private static final ForgeConfigSpec.IntValue MANA_MAX;
     private static final ForgeConfigSpec.IntValue MANA_REGEN_PER_SECOND;
-    private static final ForgeConfigSpec.BooleanValue ALLOW_ANIMAL_FALLBACK;
 
     public static final ForgeConfigSpec SPEC;
 
@@ -17,11 +16,6 @@ public final class StormWandConfig {
                 .defineInRange("maxMana", 100, 1, Integer.MAX_VALUE);
         MANA_REGEN_PER_SECOND = BUILDER.comment("Mana regenerated per second.")
                 .defineInRange("manaRegenPerSecond", 5, 0, Integer.MAX_VALUE);
-        BUILDER.pop();
-
-        BUILDER.push("spells");
-        ALLOW_ANIMAL_FALLBACK = BUILDER.comment("Allow neutral animals to be targeted when no hostile target is available.")
-                .define("allowAnimalFallback", true);
         BUILDER.pop();
 
         SPEC = BUILDER.build();
@@ -36,9 +30,5 @@ public final class StormWandConfig {
 
     public static int getManaRegenPerSecond() {
         return MANA_REGEN_PER_SECOND.get();
-    }
-
-    public static boolean allowAnimalFallback() {
-        return ALLOW_ANIMAL_FALLBACK.get();
     }
 }

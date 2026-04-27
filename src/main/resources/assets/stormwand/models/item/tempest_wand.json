@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "stormwand:item/tempest_wand"
+    "layer0": "stormwand:item/custom/tempest_wand"
   }
 }

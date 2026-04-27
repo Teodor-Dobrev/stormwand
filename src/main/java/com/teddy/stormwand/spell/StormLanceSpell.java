@@ -11,7 +11,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import org.joml.Vector3f;
 
@@ -55,7 +54,7 @@ public class StormLanceSpell implements WandSpell {
         target.setLastHurtByPlayer(player);
         target.hurt(player.damageSources().playerAttack(player), damage);
 
-        int fireAspectLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, context.wandStack());
+        int fireAspectLevel = context.wandStack().getEnchantmentLevel(Enchantments.FIRE_ASPECT);
         if (fireAspectLevel > 0) {
             target.setSecondsOnFire(2 * fireAspectLevel);
         }
@@ -107,20 +106,20 @@ public class StormLanceSpell implements WandSpell {
     }
 
     private float getDirectEnchantBonus(ItemStack wandStack, LivingEntity target) {
-        int sharpnessLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SHARPNESS, wandStack);
+        int sharpnessLevel = wandStack.getEnchantmentLevel(Enchantments.SHARPNESS);
         if (sharpnessLevel > 0) {
             return 0.5F * sharpnessLevel + 0.5F;
         }
 
         if (target.getMobType() == MobType.UNDEAD) {
-            int smiteLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SMITE, wandStack);
+            int smiteLevel = wandStack.getEnchantmentLevel(Enchantments.SMITE);
             if (smiteLevel > 0) {
                 return 2.5F * smiteLevel;
             }
         }
 
         if (target.getMobType() == MobType.ARTHROPOD) {
-            int baneLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BANE_OF_ARTHROPODS, wandStack);
+            int baneLevel = wandStack.getEnchantmentLevel(Enchantments.BANE_OF_ARTHROPODS);
             if (baneLevel > 0) {
                 return 2.5F * baneLevel;
             }

@@ -1,15 +1,17 @@
 package com.teddy.stormwand.spell;
 
-import com.teddy.stormwand.item.ModItems;
+import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class WandSpellData {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final String SPELLS_TAG = "StormSpells";
     private static final String SELECTED_SPELL_TAG = "SelectedSpell";
     private static final String COOLDOWNS_TAG = "SpellCooldowns";
@@ -21,7 +23,9 @@ public final class WandSpellData {
         CompoundTag tag = stack.getTag();
         if (tag == null || !tag.contains(SPELLS_TAG, CompoundTag.TAG_COMPOUND)) {
             initializeStormLanceOnly(stack, 1);
+            return;
         }
+        sanitizeSpellData(stack, tag);
     }
 
     public static ItemStack createStormLanceWand(Item item, int level) {
@@ -129,6 +133,83 @@ public final class WandSpellData {
                 : new CompoundTag();
         cooldowns.putLong(spellId.toString(), nextCastTick);
         tag.put(COOLDOWNS_TAG, cooldowns);
+    }
+
+    private static void sanitizeSpellData(ItemStack stack, CompoundTag tag) {
+        CompoundTag spellsTag = tag.getCompound(SPELLS_TAG);
+        boolean changed = false;
+
+        List<String> keys = new ArrayList<>(spellsTag.getAllKeys());
+        for (String key : keys) {
+            ResourceLocation spellId = ResourceLocation.tryParse(key);
+            if (spellId == null || ModSpells.byId(spellId).isEmpty()) {
+                spellsTag.remove(key);
+                changed = true;
+                LOGGER.warn("Removed unknown spell '{}' from wand '{}'.", key, stack.getItem());
+                continue;
+            }
+
+            int rawLevel = spellsTag.getInt(key);
+            int clampedLevel = clampLevel(spellId, rawLevel);
+            if (rawLevel != clampedLevel) {
+                spellsTag.putInt(key, clampedLevel);
+                changed = true;
+                LOGGER.warn("Clamped spell '{}' level from {} to {} on wand '{}'.", key, rawLevel, clampedLevel, stack.getItem());
+            }
+        }
+
+        if (spellsTag.isEmpty()) {
+            LOGGER.warn("Wand '{}' had no valid spells; restoring default spell.", stack.getItem());
+            initializeStormLanceOnly(stack, 1);
+            return;
+        }
+
+        if (!tag.contains(SELECTED_SPELL_TAG)) {
+            ResourceLocation fallback = getFirstInstalledSpellId(spellsTag);
+            tag.putString(SELECTED_SPELL_TAG, fallback.toString());
+            changed = true;
+            LOGGER.warn("Missing selected spell on wand '{}'; set to '{}'.", stack.getItem(), fallback);
+        } else {
+            ResourceLocation selected = ResourceLocation.tryParse(tag.getString(SELECTED_SPELL_TAG));
+            if (selected == null || !spellsTag.contains(selected.toString())) {
+                ResourceLocation fallback = getFirstInstalledSpellId(spellsTag);
+                tag.putString(SELECTED_SPELL_TAG, fallback.toString());
+                changed = true;
+                LOGGER.warn("Reset invalid selected spell '{}' to '{}' on wand '{}'.", selected, fallback, stack.getItem());
+            }
+        }
+
+        if (!tag.contains(COOLDOWNS_TAG, CompoundTag.TAG_COMPOUND)) {
+            tag.put(COOLDOWNS_TAG, new CompoundTag());
+            changed = true;
+        } else {
+            CompoundTag cooldowns = tag.getCompound(COOLDOWNS_TAG);
+            boolean cooldownChanged = false;
+            for (String key : new ArrayList<>(cooldowns.getAllKeys())) {
+                if (!spellsTag.contains(key)) {
+                    cooldowns.remove(key);
+                    cooldownChanged = true;
+                }
+            }
+            if (cooldownChanged) {
+                tag.put(COOLDOWNS_TAG, cooldowns);
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            tag.put(SPELLS_TAG, spellsTag);
+        }
+    }
+
+    private static ResourceLocation getFirstInstalledSpellId(CompoundTag spellsTag) {
+        for (WandSpell spell : ModSpells.all()) {
+            String key = spell.id().toString();
+            if (spellsTag.contains(key) && spellsTag.getInt(key) > 0) {
+                return spell.id();
+            }
+        }
+        return ModSpells.STORM_LANCE.id();
     }
 
     private static int clampLevel(ResourceLocation spellId, int level) {

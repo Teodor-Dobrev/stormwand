@@ -9,7 +9,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -46,7 +45,7 @@ public final class InvincibleTradeEvents {
     private static boolean hasInvincibleTradeWand(ServerPlayer player) {
         for (int slot = 0; slot < 9; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
-            if (stack.getItem() instanceof StormWandItem && EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.INVINCIBLE_TRADE.get(), stack) > 0) {
+            if (stack.getItem() instanceof StormWandItem && stack.getEnchantmentLevel(ModEnchantments.INVINCIBLE_TRADE.get()) > 0) {
                 return true;
             }
         }

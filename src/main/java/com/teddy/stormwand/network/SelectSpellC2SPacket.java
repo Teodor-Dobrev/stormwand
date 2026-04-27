@@ -1,6 +1,8 @@
 package com.teddy.stormwand.network;
 
+import com.mojang.logging.LogUtils;
 import com.teddy.stormwand.item.StormWandItem;
+import com.teddy.stormwand.spell.ModSpells;
 import com.teddy.stormwand.spell.WandSpellData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -8,10 +10,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
+import org.slf4j.Logger;
 
 import java.util.function.Supplier;
 
 public class SelectSpellC2SPacket {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private final InteractionHand hand;
     private final ResourceLocation spellId;
 
@@ -43,6 +48,14 @@ public class SelectSpellC2SPacket {
             }
 
             WandSpellData.ensureDefaults(stack);
+            if (ModSpells.byId(packet.spellId).isEmpty()) {
+                LOGGER.warn("Player '{}' tried to select unknown spell '{}'.", player.getScoreboardName(), packet.spellId);
+                return;
+            }
+            if (!WandSpellData.hasSpell(stack, packet.spellId)) {
+                LOGGER.warn("Player '{}' tried to select uninstalled spell '{}' on '{}'.", player.getScoreboardName(), packet.spellId, stack.getItem());
+                return;
+            }
             WandSpellData.setSelectedSpell(stack, packet.spellId);
         });
         context.setPacketHandled(true);

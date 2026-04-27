@@ -12,7 +12,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -59,9 +58,15 @@ public class ArcMineSpell implements WandSpell {
     }
 
     public boolean hasTriggerTarget(ArcMineProjectile mine, int spellLevel) {
+        if (!(mine.getOwner() instanceof ServerPlayer caster)) {
+            return false;
+        }
+
         double triggerRadius = getTriggerRadius(spellLevel);
         return !mine.level().getEntitiesOfClass(Mob.class, mine.getBoundingBox().inflate(triggerRadius), entity ->
-                entity.isAlive() && entity != mine.getOwner()).isEmpty();
+                entity.isAlive()
+                        && entity != mine.getOwner()
+                        && SpellTargeting.isValidAutoTarget(entity, caster)).isEmpty();
     }
 
     public void detonate(ServerPlayer player, ArcMineProjectile mine, ItemStack wandStack, int spellLevel) {
@@ -76,10 +81,12 @@ public class ArcMineSpell implements WandSpell {
         level.playSound(null, center.x, center.y, center.z, SoundEvents.LIGHTNING_BOLT_IMPACT, SoundSource.PLAYERS, 0.6F, 1.35F);
 
         List<Mob> targets = level.getEntitiesOfClass(Mob.class, new AABB(center, center).inflate(splashRadius), mob ->
-                mob.isAlive() && mob != mine.getOwner());
+                mob.isAlive()
+                        && mob != mine.getOwner()
+                        && SpellTargeting.isValidAutoTarget(mob, player));
 
         for (Mob target : targets) {
-            int fireAspectLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, wandStack);
+            int fireAspectLevel = wandStack.getEnchantmentLevel(Enchantments.FIRE_ASPECT);
             if (fireAspectLevel > 0) {
                 target.setSecondsOnFire(2 * fireAspectLevel);
             }
@@ -119,18 +126,18 @@ public class ArcMineSpell implements WandSpell {
     }
 
     private float getEnchantBonus(ItemStack wandStack, LivingEntity target) {
-        int sharpnessLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SHARPNESS, wandStack);
+        int sharpnessLevel = wandStack.getEnchantmentLevel(Enchantments.SHARPNESS);
         if (sharpnessLevel > 0) {
             return 0.5F * sharpnessLevel + 0.5F;
         }
         if (target.getMobType() == MobType.UNDEAD) {
-            int smiteLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SMITE, wandStack);
+            int smiteLevel = wandStack.getEnchantmentLevel(Enchantments.SMITE);
             if (smiteLevel > 0) {
                 return 2.5F * smiteLevel;
             }
         }
         if (target.getMobType() == MobType.ARTHROPOD) {
-            int baneLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BANE_OF_ARTHROPODS, wandStack);
+            int baneLevel = wandStack.getEnchantmentLevel(Enchantments.BANE_OF_ARTHROPODS);
             if (baneLevel > 0) {
                 return 2.5F * baneLevel;
             }

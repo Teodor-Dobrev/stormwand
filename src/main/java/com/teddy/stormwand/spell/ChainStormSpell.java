@@ -11,10 +11,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -60,13 +57,13 @@ public class ChainStormSpell implements WandSpell {
 
     @Override
     public SpellCastResult cast(SpellCastContext context, int spellLevel) {
-        LivingEntity primaryTarget = findPrimaryTarget(context, spellLevel);
+        Predicate<LivingEntity> hostilePredicate = entity -> isHostileTarget(context.player(), entity);
+        LivingEntity primaryTarget = findPrimaryTarget(context, spellLevel, hostilePredicate);
         if (primaryTarget == null) {
             return SpellCastResult.NO_TARGET;
         }
 
-        Predicate<LivingEntity> chainPredicate = primaryTarget instanceof Enemy ? this::isHostileTarget : this::isAnimalTarget;
-        List<ZapConnection> connections = buildSplitConnections(context, primaryTarget, chainPredicate, spellLevel);
+        List<ZapConnection> connections = buildSplitConnections(context, primaryTarget, hostilePredicate, spellLevel);
         if (connections.isEmpty()) {
             return SpellCastResult.NO_TARGET;
         }
@@ -105,27 +102,14 @@ public class ChainStormSpell implements WandSpell {
         return 5;
     }
 
-    private LivingEntity findPrimaryTarget(SpellCastContext context, int spellLevel) {
+    private LivingEntity findPrimaryTarget(SpellCastContext context, int spellLevel, Predicate<LivingEntity> hostilePredicate) {
         LivingEntity directHitTarget = context.directHitTarget();
-        if (directHitTarget != null && directHitTarget.isAlive() && this.isHostileTarget(directHitTarget)) {
+        if (directHitTarget != null && directHitTarget.isAlive() && hostilePredicate.test(directHitTarget)) {
             return directHitTarget;
         }
 
         double searchRadius = getChainRadius(spellLevel);
-        LivingEntity nearbyHostile = findNearestTarget(context.player().level(), context.impactPosition(), this::isHostileTarget, searchRadius);
-        if (nearbyHostile != null) {
-            return nearbyHostile;
-        }
-
-        if (!com.teddy.stormwand.config.StormWandConfig.allowAnimalFallback()) {
-            return null;
-        }
-
-        if (directHitTarget != null && directHitTarget.isAlive() && this.isAnimalTarget(directHitTarget)) {
-            return directHitTarget;
-        }
-
-        return findNearestTarget(context.player().level(), context.impactPosition(), this::isAnimalTarget, searchRadius);
+        return findNearestTarget(context.player().level(), context.impactPosition(), hostilePredicate, searchRadius);
     }
 
     private LivingEntity findNearestTarget(Level level, Vec3 center, Predicate<LivingEntity> predicate, double radius) {
@@ -219,7 +203,7 @@ public class ChainStormSpell implements WandSpell {
         ServerPlayer player = context.player();
         ServerLevel level = player.serverLevel();
         float baseDamage = getBaseDamage(spellLevel);
-        int fireAspectLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, context.wandStack());
+        int fireAspectLevel = context.wandStack().getEnchantmentLevel(Enchantments.FIRE_ASPECT);
 
         level.playSound(null, context.impactPosition().x, context.impactPosition().y, context.impactPosition().z, SoundEvents.REDSTONE_TORCH_BURNOUT, SoundSource.PLAYERS, 0.9F, 1.75F);
         level.playSound(null, context.impactPosition().x, context.impactPosition().y, context.impactPosition().z, SoundEvents.BEACON_POWER_SELECT, SoundSource.PLAYERS, 0.16F, 1.85F);
@@ -250,20 +234,20 @@ public class ChainStormSpell implements WandSpell {
     }
 
     private float getDirectEnchantBonus(ItemStack wandStack, LivingEntity target) {
-        int sharpnessLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SHARPNESS, wandStack);
+        int sharpnessLevel = wandStack.getEnchantmentLevel(Enchantments.SHARPNESS);
         if (sharpnessLevel > 0) {
             return 0.5F * sharpnessLevel + 0.5F;
         }
 
         if (target.getMobType() == MobType.UNDEAD) {
-            int smiteLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SMITE, wandStack);
+            int smiteLevel = wandStack.getEnchantmentLevel(Enchantments.SMITE);
             if (smiteLevel > 0) {
                 return 2.5F * smiteLevel;
             }
         }
 
         if (target.getMobType() == MobType.ARTHROPOD) {
-            int baneLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BANE_OF_ARTHROPODS, wandStack);
+            int baneLevel = wandStack.getEnchantmentLevel(Enchantments.BANE_OF_ARTHROPODS);
             if (baneLevel > 0) {
                 return 2.5F * baneLevel;
             }
@@ -301,12 +285,8 @@ public class ChainStormSpell implements WandSpell {
         return entity.position().add(0.0D, entity.getBbHeight() * 0.55D, 0.0D);
     }
 
-    private boolean isHostileTarget(LivingEntity entity) {
-        return entity instanceof Enemy;
-    }
-
-    private boolean isAnimalTarget(LivingEntity entity) {
-        return entity instanceof Animal;
+    private boolean isHostileTarget(ServerPlayer player, LivingEntity entity) {
+        return SpellTargeting.isValidAutoTarget(entity, player);
     }
 
     private float getBaseDamage(int spellLevel) {

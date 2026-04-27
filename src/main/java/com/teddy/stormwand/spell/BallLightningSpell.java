@@ -11,10 +11,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -97,11 +94,8 @@ public class BallLightningSpell implements WandSpell {
     }
 
     public SpellCastResult pulse(ServerPlayer player, net.minecraft.world.entity.Entity sourceEntity, ItemStack wandStack, Vec3 center, int spellLevel) {
-        Predicate<LivingEntity> hostile = this::isHostile;
-        List<LivingEntity> hostiles = collect(player.level(), center, hostile, getPulseRadius(spellLevel));
-        List<LivingEntity> targets = !hostiles.isEmpty()
-                ? hostiles
-                : (com.teddy.stormwand.config.StormWandConfig.allowAnimalFallback() ? collect(player.level(), center, this::isAnimal, getPulseRadius(spellLevel)) : List.of());
+        Predicate<LivingEntity> hostile = entity -> SpellTargeting.isValidAutoTarget(entity, player);
+        List<LivingEntity> targets = collect(player.level(), center, hostile, getPulseRadius(spellLevel));
         if (targets.isEmpty()) {
             return SpellCastResult.NO_TARGET;
         }
@@ -119,7 +113,7 @@ public class BallLightningSpell implements WandSpell {
         for (LivingEntity target : targets) {
             Vec3 targetCenter = getCenter(target);
             spawnArc(level, center, targetCenter);
-            int fireAspectLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FIRE_ASPECT, wandStack);
+            int fireAspectLevel = wandStack.getEnchantmentLevel(Enchantments.FIRE_ASPECT);
             if (fireAspectLevel > 0) {
                 target.setSecondsOnFire(2 * fireAspectLevel);
             }
@@ -153,31 +147,23 @@ public class BallLightningSpell implements WandSpell {
     }
 
     private float getEnchantBonus(ItemStack wandStack, LivingEntity target) {
-        int sharpnessLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SHARPNESS, wandStack);
+        int sharpnessLevel = wandStack.getEnchantmentLevel(Enchantments.SHARPNESS);
         if (sharpnessLevel > 0) {
             return 0.5F * sharpnessLevel + 0.5F;
         }
         if (target.getMobType() == MobType.UNDEAD) {
-            int smiteLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SMITE, wandStack);
+            int smiteLevel = wandStack.getEnchantmentLevel(Enchantments.SMITE);
             if (smiteLevel > 0) {
                 return 2.5F * smiteLevel;
             }
         }
         if (target.getMobType() == MobType.ARTHROPOD) {
-            int baneLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BANE_OF_ARTHROPODS, wandStack);
+            int baneLevel = wandStack.getEnchantmentLevel(Enchantments.BANE_OF_ARTHROPODS);
             if (baneLevel > 0) {
                 return 2.5F * baneLevel;
             }
         }
         return 0.0F;
-    }
-
-    private boolean isHostile(LivingEntity entity) {
-        return entity instanceof Enemy;
-    }
-
-    private boolean isAnimal(LivingEntity entity) {
-        return entity instanceof Animal;
     }
 
     private Vec3 getCenter(LivingEntity entity) {

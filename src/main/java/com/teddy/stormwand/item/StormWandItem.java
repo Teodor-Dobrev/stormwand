@@ -20,7 +20,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.DigDurabilityEnchantment;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
@@ -172,6 +171,7 @@ public class StormWandItem extends Item {
         tooltip.add(Component.translatable("tooltip.stormwand.mana_discount", (int) Math.round(this.tier.getManaDiscount() * 100.0D)).withStyle(ChatFormatting.DARK_AQUA));
         tooltip.add(Component.translatable("tooltip.stormwand.cooldown_reduction", (int) Math.round(this.tier.getCooldownReduction() * 100.0D)).withStyle(ChatFormatting.DARK_AQUA));
         tooltip.add(Component.translatable("tooltip.stormwand.merge_hint").withStyle(ChatFormatting.DARK_GRAY));
+        tooltip.add(Component.translatable("tooltip.stormwand.tier_upgrade_hint").withStyle(ChatFormatting.DARK_GRAY));
         tooltip.add(Component.translatable("tooltip.stormwand.selector_hint").withStyle(ChatFormatting.DARK_GRAY));
         for (WandSpellData.SpellLevelEntry entry : WandSpellData.getInstalledSpells(stack)) {
             tooltip.add(Component.translatable("tooltip.stormwand.installed_spell", entry.spell().displayName(), RomanNumerals.toRoman(entry.level())).withStyle(ChatFormatting.DARK_GRAY));
@@ -210,7 +210,7 @@ public class StormWandItem extends Item {
         }
 
         RandomSource random = player.getRandom();
-        int unbreakingLevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.UNBREAKING, stack);
+        int unbreakingLevel = stack.getEnchantmentLevel(Enchantments.UNBREAKING);
 
         for (int point = 0; point < attemptedDamage; point++) {
             if (isBroken(stack)) {

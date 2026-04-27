@@ -7,7 +7,7 @@
     "item": "stormwand:maelstrom_wand"
   },
   "addition": {
-    "item": "minecraft:dragon_breath"
+    "item": "minecraft:emerald"
   },
   "result": {
     "item": "stormwand:eternal_storm_wand"

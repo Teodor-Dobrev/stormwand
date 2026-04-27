@@ -1,6 +1,6 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "stormwand:item/spark_wand"
+    "layer0": "stormwand:item/custom/spark_wand"
   }
 }

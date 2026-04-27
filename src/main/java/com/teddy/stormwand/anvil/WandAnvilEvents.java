@@ -8,6 +8,7 @@ import com.teddy.stormwand.spell.ModSpells;
 import com.teddy.stormwand.spell.WandSpell;
 import com.teddy.stormwand.spell.WandSpellData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -44,8 +45,14 @@ public final class WandAnvilEvents {
             return;
         }
 
-        if (left.getItem() instanceof StormWandItem && right.is(Items.AMETHYST_SHARD)) {
-            repairWand(event, left, right);
+        if (left.getItem() instanceof StormWandItem) {
+            if (upgradeWandTier(event, left, right)) {
+                return;
+            }
+
+            if (right.is(Items.AMETHYST_SHARD)) {
+                repairWand(event, left, right);
+            }
         }
     }
 
@@ -133,6 +140,68 @@ public final class WandAnvilEvents {
         event.setOutput(result);
         event.setCost(Math.max(1, shardsNeeded));
         event.setMaterialCost(shardsNeeded);
+    }
+
+    private static boolean upgradeWandTier(AnvilUpdateEvent event, ItemStack wand, ItemStack catalyst) {
+        Item upgradedWandItem = getUpgradedWandItem(wand, catalyst);
+        if (upgradedWandItem == null) {
+            return false;
+        }
+
+        ItemStack result = new ItemStack(upgradedWandItem);
+        if (wand.hasTag()) {
+            result.setTag(wand.getTag().copy());
+        }
+
+        transferDurabilityPercent(wand, result);
+        WandSpellData.ensureDefaults(result);
+        result.setRepairCost(wand.getBaseRepairCost());
+
+        event.setOutput(result);
+        event.setCost(getTierUpgradeCost(wand));
+        event.setMaterialCost(1);
+        return true;
+    }
+
+    private static Item getUpgradedWandItem(ItemStack wand, ItemStack catalyst) {
+        if (wand.is(ModItems.STORM_WAND.get()) && catalyst.is(Items.IRON_INGOT)) {
+            return ModItems.SPARK_WAND.get();
+        }
+
+        if (wand.is(ModItems.SPARK_WAND.get()) && catalyst.is(Items.GOLD_INGOT)) {
+            return ModItems.ARC_WAND.get();
+        }
+
+        if (wand.is(ModItems.ARC_WAND.get()) && catalyst.is(Items.DIAMOND)) {
+            return ModItems.TEMPEST_WAND.get();
+        }
+
+        return null;
+    }
+
+    private static int getTierUpgradeCost(ItemStack wand) {
+        if (wand.is(ModItems.STORM_WAND.get())) {
+            return 1;
+        }
+        if (wand.is(ModItems.SPARK_WAND.get())) {
+            return 2;
+        }
+        if (wand.is(ModItems.ARC_WAND.get())) {
+            return 3;
+        }
+        return 1;
+    }
+
+    private static void transferDurabilityPercent(ItemStack source, ItemStack target) {
+        if (!source.isDamageableItem() || !target.isDamageableItem()) {
+            return;
+        }
+
+        int sourceMaxDamage = Math.max(1, source.getMaxDamage() - 1);
+        int targetMaxDamage = Math.max(1, target.getMaxDamage() - 1);
+        double damageRatio = source.getDamageValue() / (double) sourceMaxDamage;
+        int transferredDamage = (int) Math.round(damageRatio * targetMaxDamage);
+        target.setDamageValue(Math.max(0, Math.min(targetMaxDamage, transferredDamage)));
     }
 
     private static int mergeDamageValue(ItemStack left, ItemStack right) {
